@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sổ chi tiêu</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #0f9488;
+      --primary-dark: #08776e;
+      --background: #f4f7f6;
+      --card: #ffffff;
+      --text: #17211f;
+      --muted: #687773;
+      --border: #dce5e2;
+      --danger: #dc2626;
+      --success: #15803d;
+      --warning: #c2410c;
+    }
+
+    body {
+      margin: 0;
+      color: var(--text);
+      background: var(--background);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .container {
+      width: min(980px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 28px 0 60px;
+    }
+
+    header {
+      margin-bottom: 22px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 30px;
+    }
+
+    header p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .card {
+      padding: 22px;
+      margin-bottom: 18px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: 0 5px 20px rgba(23, 33, 31, 0.05);
+    }
+
+    .card-title {
+      margin: 0 0 18px;
+      font-size: 20px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+
+    .full {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 7px;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    input,
+    select {
+      width: 100%;
+      min-height: 48px;
+      padding: 0 13px;
+      color: var(--text);
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      outline: none;
+    }
+
+    input:focus,
+    select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(15, 148, 136, 0.12);
+    }
+
+    .button {
+      min-height: 46px;
+      padding: 0 17px;
+      border: 0;
+      border-radius: 11px;
+      font-weight: 750;
+    }
+
+    .button-primary {
+      width: 100%;
+      color: white;
+      background: var(--primary);
+    }
+
+    .button-primary:hover {
+      background: var(--primary-dark);
+    }
+
+    .button-secondary {
+      color: var(--text);
+      background: #edf3f1;
+    }
+
+    .button-danger {
+      color: var(--danger);
+      background: #fff0f0;
+    }
+
+    #cancelButton {
+      display: none;
+      width: 100%;
+      margin-top: 9px;
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-bottom: 18px;
+    }
+
+    .summary-box {
+      padding: 20px;
+      color: white;
+      background: linear-gradient(135deg, #0f9488, #08776e);
+      border-radius: 17px;
+    }
+
+    .summary-box.light {
+      color: var(--text);
+      background: white;
+      border: 1px solid var(--border);
+    }
+
+    .summary-label {
+      margin-bottom: 8px;
+      font-size: 14px;
+      opacity: 0.85;
+    }
+
+    .summary-value {
+      font-size: 27px;
+      font-weight: 850;
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 15px;
+      margin-bottom: 16px;
+    }
+
+    .month-field {
+      width: 220px;
+    }
+
+    .backup-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .backup-actions .button {
+      min-height: 42px;
+      font-size: 14px;
+    }
+
+    .expense-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .expense-item {
+      display: grid;
+      grid-template-columns: 48px minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 13px;
+      padding: 14px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+    }
+
+    .category-icon {
+      display: grid;
+      width: 48px;
+      height: 48px;
+      place-items: center;
+      background: #e8f7f5;
+      border-radius: 13px;
+      font-size: 23px;
+    }
+
+    .expense-info {
+      min-width: 0;
+    }
+
+    .expense-title {
+      overflow: hidden;
+      margin-bottom: 4px;
+      font-weight: 750;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .expense-meta {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .expense-right {
+      text-align: right;
+    }
+
+    .expense-amount {
+      margin-bottom: 7px;
+      color: var(--danger);
+      font-weight: 850;
+    }
+
+    .item-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 6px;
+    }
+
+    .small-button {
+      min-height: 31px;
+      padding: 0 10px;
+      border: 0;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .empty {
+      padding: 34px 15px;
+      color: var(--muted);
+      text-align: center;
+      border: 1px dashed var(--border);
+      border-radius: 14px;
+    }
+
+    .notice {
+      margin-top: 15px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .report-description {
+      margin: -9px 0 22px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .chart-wrap {
+      overflow-x: auto;
+      margin-bottom: 28px;
+      padding: 20px 12px 10px;
+      background: #f8fbfa;
+      border: 1px solid var(--border);
+      border-radius: 15px;
+    }
+
+    .chart {
+      display: flex;
+      align-items: end;
+      gap: 16px;
+      min-width: 600px;
+      height: 265px;
+    }
+
+    .chart-column {
+      display: flex;
+      flex: 1;
+      height: 100%;
+      min-width: 75px;
+      align-items: center;
+      justify-content: end;
+      flex-direction: column;
+    }
+
+    .bar-value {
+      margin-bottom: 7px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .bar-area {
+      display: flex;
+      width: 100%;
+      height: 190px;
+      align-items: end;
+      justify-content: center;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .bar {
+      width: min(52px, 72%);
+      min-height: 4px;
+      background: linear-gradient(180deg, #24b6a8, #0f9488);
+      border-radius: 9px 9px 3px 3px;
+      transition: height 0.3s;
+    }
+
+    .bar.zero {
+      background: #d7e2df;
+    }
+
+    .bar-label {
+      margin-top: 9px;
+      font-size: 13px;
+      font-weight: 750;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+    }
+
+    table {
+      width: 100%;
+      min-width: 760px;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      padding: 14px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    th {
+      color: var(--muted);
+      background: #f8fbfa;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    td {
+      font-size: 14px;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .money-cell {
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .change {
+      display: inline-block;
+      padding: 5px 8px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 750;
+      white-space: nowrap;
+    }
+
+    .change.up {
+      color: var(--danger);
+      background: #fff0f0;
+    }
+
+    .change.down {
+      color: var(--success);
+      background: #ecfdf3;
+    }
+
+    .change.equal {
+      color: var(--muted);
+      background: #eef3f2;
+    }
+
+    .report-empty {
+      padding: 35px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    @media (max-width: 650px) {
+      .container {
+        width: min(100% - 20px, 980px);
+        padding-top: 20px;
+      }
+
+      .card {
+        padding: 17px;
+      }
+
+      .form-grid,
+      .summary {
+        grid-template-columns: 1fr;
+      }
+
+      .toolbar {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .month-field {
+        width: 100%;
+      }
+
+      .backup-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .expense-item {
+        grid-template-columns: 43px minmax(0, 1fr);
+      }
+
+      .category-icon {
+        width: 43px;
+        height: 43px;
+      }
+
+      .expense-right {
+        grid-column: 1 / -1;
+        padding-top: 10px;
+        text-align: left;
+        border-top: 1px solid var(--border);
+      }
+
+      .item-actions {
+        justify-content: flex-start;
+      }
+
+      .summary-value {
+        font-size: 24px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="container">
+    <header>
+      <h1>💰 Sổ chi tiêu</h1>
+      <p>Không cần đăng nhập — mở lên và sử dụng ngay.</p>
+    </header>
+
+    <section class="card">
+      <h2 id="formTitle" class="card-title">Thêm khoản chi</h2>
+
+      <form id="expenseForm">
+        <div class="form-grid">
+          <div>
+            <label for="date">Ngày chi</label>
+            <input id="date" type="date" required>
+          </div>
+
+          <div>
+            <label for="amount">Số tiền</label>
+            <input
+              id="amount"
+              type="text"
+              inputmode="numeric"
+              placeholder="Ví dụ: 120000"
+              required
+            >
+          </div>
+
+          <div>
+            <label for="category">Loại chi tiêu</label>
+            <select id="category" required>
+              <option value="Ăn uống">🍜 Ăn uống</option>
+              <option value="Đi lại">🛵 Đi lại</option>
+              <option value="Mua sắm">🛍️ Mua sắm</option>
+              <option value="Hóa đơn">🧾 Hóa đơn</option>
+              <option value="Nhà cửa">🏠 Nhà cửa</option>
+              <option value="Sức khỏe">💊 Sức khỏe</option>
+              <option value="Giải trí">🎬 Giải trí</option>
+              <option value="Giáo dục">📚 Giáo dục</option>
+              <option value="Khác">📌 Khác</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="note">Ghi chú</label>
+            <input id="note" type="text" placeholder="Ví dụ: Ăn trưa">
+          </div>
+
+          <div class="full">
+            <button id="saveButton" class="button button-primary" type="submit">
+              + Lưu khoản chi
+            </button>
+
+            <button
+              id="cancelButton"
+              class="button button-danger"
+              type="button"
+            >
+              Hủy chỉnh sửa
+            </button>
+          </div>
+        </div>
+      </form>
+    </section>
+
+    <section class="summary">
+      <div class="summary-box">
+        <div class="summary-label">Tổng chi trong tháng đang xem</div>
+        <div id="totalAmount" class="summary-value">0 ₫</div>
+      </div>
+
+      <div class="summary-box light">
+        <div class="summary-label">Số khoản đã ghi</div>
+        <div id="totalCount" class="summary-value">0</div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="toolbar">
+        <div class="month-field">
+          <label for="monthFilter">Xem chi tiêu tháng</label>
+          <input id="monthFilter" type="month">
+        </div>
+
+        <div class="backup-actions">
+          <button
+            id="exportButton"
+            class="button button-secondary"
+            type="button"
+          >
+            Tải bản sao lưu
+          </button>
+
+          <button
+            id="importButton"
+            class="button button-secondary"
+            type="button"
+          >
+            Khôi phục dữ liệu
+          </button>
+
+          <input id="importFile" type="file" accept=".json" hidden>
+        </div>
+      </div>
+
+      <div id="expenseList" class="expense-list"></div>
+
+      <div class="notice">
+        Dữ liệu được lưu trên trình duyệt của thiết bị này. Hãy bấm
+        <strong>Tải bản sao lưu</strong> định kỳ để tránh mất dữ liệu.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2 class="card-title">📊 Báo cáo hàng tháng</h2>
+
+      <p class="report-description">
+        Biểu đồ hiển thị 6 tháng gần nhất. Bảng bên dưới hiển thị tối đa
+        12 tháng và tự động so sánh với tháng liền trước.
+      </p>
+
+      <h3>Chi tiêu 6 tháng gần nhất</h3>
+
+      <div class="chart-wrap">
+        <div id="monthlyChart" class="chart"></div>
+      </div>
+
+      <h3>Bảng so sánh hàng tháng</h3>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Tháng</th>
+              <th>Tổng chi</th>
+              <th>So với tháng trước</th>
+              <th>Số khoản</th>
+              <th>Chi nhiều nhất</th>
+            </tr>
+          </thead>
+
+          <tbody id="reportTableBody"></tbody>
+        </table>
+
+        <div id="reportEmpty" class="report-empty" hidden>
+          Chưa có dữ liệu để lập báo cáo.
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const STORAGE_KEY = "so-chi-tieu-don-gian-v1";
+
+    const icons = {
+      "Ăn uống": "🍜",
+      "Đi lại": "🛵",
+      "Mua sắm": "🛍️",
+      "Hóa đơn": "🧾",
+      "Nhà cửa": "🏠",
+      "Sức khỏe": "💊",
+      "Giải trí": "🎬",
+      "Giáo dục": "📚",
+      "Khác": "📌"
+    };
+
+    const form = document.getElementById("expenseForm");
+    const dateInput = document.getElementById("date");
+    const amountInput = document.getElementById("amount");
+    const categoryInput = document.getElementById("category");
+    const noteInput = document.getElementById("note");
+    const monthFilter = document.getElementById("monthFilter");
+    const expenseList = document.getElementById("expenseList");
+    const totalAmount = document.getElementById("totalAmount");
+    const totalCount = document.getElementById("totalCount");
+    const formTitle = document.getElementById("formTitle");
+    const saveButton = document.getElementById("saveButton");
+    const cancelButton = document.getElementById("cancelButton");
+    const exportButton = document.getElementById("exportButton");
+    const importButton = document.getElementById("importButton");
+    const importFile = document.getElementById("importFile");
+    const monthlyChart = document.getElementById("monthlyChart");
+    const reportTableBody = document.getElementById("reportTableBody");
+    const reportEmpty = document.getElementById("reportEmpty");
+
+    let expenses = loadExpenses();
+    let editingId = null;
+
+    const today = new Date();
+
+    const localToday = [
+      today.getFullYear(),
+      String(today.getMonth() + 1).padStart(2, "0"),
+      String(today.getDate()).padStart(2, "0")
+    ].join("-");
+
+    dateInput.value = localToday;
+    monthFilter.value = localToday.slice(0, 7);
+
+    function loadExpenses() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        return Array.isArray(saved) ? saved : [];
+      } catch {
+        return [];
+      }
+    }
+
+    function saveExpenses() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(expenses));
+    }
+
+    function parseAmount(value) {
+      return Number(String(value).replace(/\D/g, ""));
+    }
+
+    function formatMoney(value) {
+      return new Intl.NumberFormat("vi-VN", {
+        style: "currency",
+        currency: "VND",
+        maximumFractionDigits: 0
+      }).format(value);
+    }
+
+    function formatShortMoney(value) {
+      if (value >= 1000000000) {
+        return `${(value / 1000000000).toFixed(1)} tỷ`;
+      }
+
+      if (value >= 1000000) {
+        return `${(value / 1000000).toFixed(1)} tr`;
+      }
+
+      if (value >= 1000) {
+        return `${Math.round(value / 1000)}k`;
+      }
+
+      return String(value);
+    }
+
+    function formatDate(value) {
+      const parts = value.split("-");
+      return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    }
+
+    function formatMonth(value) {
+      const parts = value.split("-");
+      return `${parts[1]}/${parts[0]}`;
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function getMonthKey(date) {
+      return [
+        date.getFullYear(),
+        String(date.getMonth() + 1).padStart(2, "0")
+      ].join("-");
+    }
+
+    function getRecentMonths(numberOfMonths) {
+      const months = [];
+
+      for (let index = numberOfMonths - 1; index >= 0; index--) {
+        const date = new Date(
+          today.getFullYear(),
+          today.getMonth() - index,
+          1
+        );
+
+        months.push(getMonthKey(date));
+      }
+
+      return months;
+    }
+
+    function getMonthlyReport(month) {
+      const monthExpenses = expenses.filter(item =>
+        item.date.startsWith(month)
+      );
+
+      const total = monthExpenses.reduce(
+        (sum, item) => sum + Number(item.amount || 0),
+        0
+      );
+
+      const categoryTotals = {};
+
+      monthExpenses.forEach(item => {
+        categoryTotals[item.category] =
+          (categoryTotals[item.category] || 0) + Number(item.amount || 0);
+      });
+
+      const topCategoryEntry = Object.entries(categoryTotals)
+        .sort((first, second) => second[1] - first[1])[0];
+
+      return {
+        month,
+        total,
+        count: monthExpenses.length,
+        topCategory: topCategoryEntry ? topCategoryEntry[0] : "—"
+      };
+    }
+
+    function getPreviousMonth(month) {
+      const parts = month.split("-");
+      const date = new Date(Number(parts[0]), Number(parts[1]) - 2, 1);
+      return getMonthKey(date);
+    }
+
+    function renderExpenses() {
+      const selectedMonth = monthFilter.value;
+
+      const filtered = expenses
+        .filter(item => item.date.startsWith(selectedMonth))
+        .sort((first, second) => {
+          if (first.date !== second.date) {
+            return second.date.localeCompare(first.date);
+          }
+
+          return Number(second.createdAt || 0) -
+            Number(first.createdAt || 0);
+        });
+
+      const total = filtered.reduce(
+        (sum, item) => sum + Number(item.amount || 0),
+        0
+      );
+
+      totalAmount.textContent = formatMoney(total);
+      totalCount.textContent = filtered.length;
+
+      if (filtered.length === 0) {
+        expenseList.innerHTML = `
+          <div class="empty">
+            Chưa có khoản chi nào trong tháng này.
+          </div>
+        `;
+        return;
+      }
+
+      expenseList.innerHTML = filtered.map(item => `
+        <article class="expense-item">
+          <div class="category-icon">
+            ${icons[item.category] || "📌"}
+          </div>
+
+          <div class="expense-info">
+            <div class="expense-title">
+              ${escapeHtml(item.note || item.category)}
+            </div>
+
+            <div class="expense-meta">
+              ${escapeHtml(item.category)} · ${formatDate(item.date)}
+            </div>
+          </div>
+
+          <div class="expense-right">
+            <div class="expense-amount">
+              -${formatMoney(item.amount)}
+            </div>
+
+            <div class="item-actions">
+              <button
+                class="small-button button-secondary"
+                type="button"
+                onclick="editExpense('${item.id}')"
+              >
+                Sửa
+              </button>
+
+              <button
+                class="small-button button-danger"
+                type="button"
+                onclick="deleteExpense('${item.id}')"
+              >
+                Xóa
+              </button>
+            </div>
+          </div>
+        </article>
+      `).join("");
+    }
+
+    function renderChart() {
+      const months = getRecentMonths(6);
+      const reports = months.map(getMonthlyReport);
+      const highestTotal = Math.max(...reports.map(item => item.total), 1);
+
+      monthlyChart.innerHTML = reports.map(report => {
+        const height = report.total > 0
+          ? Math.max((report.total / highestTotal) * 100, 3)
+          : 3;
+
+        const barClass = report.total === 0 ? "bar zero" : "bar";
+
+        return `
+          <div class="chart-column">
+            <div class="bar-value">
+              ${formatShortMoney(report.total)}
+            </div>
+
+            <div class="bar-area">
+              <div
+                class="${barClass}"
+                style="height: ${height}%"
+                title="${formatMoney(report.total)}"
+              ></div>
+            </div>
+
+            <div class="bar-label">
+              ${formatMonth(report.month)}
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function createChangeHtml(currentTotal, previousTotal, hasPreviousData) {
+      if (!hasPreviousData && currentTotal === 0) {
+        return `<span class="change equal">—</span>`;
+      }
+
+      if (!hasPreviousData) {
+        return `<span class="change equal">Tháng đầu tiên</span>`;
+      }
+
+      const difference = currentTotal - previousTotal;
+
+      if (difference === 0) {
+        return `<span class="change equal">Không đổi</span>`;
+      }
+
+      if (difference > 0) {
+        const percentage = previousTotal > 0
+          ? Math.round((difference / previousTotal) * 100)
+          : null;
+
+        const percentageText = percentage !== null
+          ? ` (${percentage}%)`
+          : "";
+
+        return `
+          <span class="change up">
+            ↑ Tăng ${formatMoney(difference)}${percentageText}
+          </span>
+        `;
+      }
+
+      const decrease = Math.abs(difference);
+      const percentage = previousTotal > 0
+        ? Math.round((decrease / previousTotal) * 100)
+        : 0;
+
+      return `
+        <span class="change down">
+          ↓ Giảm ${formatMoney(decrease)} (${percentage}%)
+        </span>
+      `;
+    }
+
+    function renderReportTable() {
+      const recordedMonths = [
+        ...new Set(expenses.map(item => item.date.slice(0, 7)))
+      ].sort().reverse().slice(0, 12);
+
+      if (recordedMonths.length === 0) {
+        reportTableBody.innerHTML = "";
+        reportEmpty.hidden = false;
+        return;
+      }
+
+      reportEmpty.hidden = true;
+
+      const allRecordedMonths = new Set(
+        expenses.map(item => item.date.slice(0, 7))
+      );
+
+      reportTableBody.innerHTML = recordedMonths.map(month => {
+        const report = getMonthlyReport(month);
+        const previousMonth = getPreviousMonth(month);
+        const previousReport = getMonthlyReport(previousMonth);
+        const hasPreviousData = allRecordedMonths.has(previousMonth);
+
+        return `
+          <tr>
+            <td><strong>${formatMonth(month)}</strong></td>
+
+            <td class="money-cell">
+              ${formatMoney(report.total)}
+            </td>
+
+            <td>
+              ${createChangeHtml(
+                report.total,
+                previousReport.total,
+                hasPreviousData
+              )}
+            </td>
+
+            <td>${report.count}</td>
+
+            <td>
+              ${icons[report.topCategory] || ""}
+              ${escapeHtml(report.topCategory)}
+            </td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function renderAll() {
+      renderExpenses();
+      renderChart();
+      renderReportTable();
+    }
+
+    form.addEventListener("submit", event => {
+      event.preventDefault();
+
+      const amount = parseAmount(amountInput.value);
+
+      if (!dateInput.value) {
+        alert("Bạn hãy chọn ngày chi.");
+        return;
+      }
+
+      if (!amount || amount <= 0) {
+        alert("Bạn hãy nhập số tiền hợp lệ.");
+        amountInput.focus();
+        return;
+      }
+
+      const data = {
+        date: dateInput.value,
+        amount,
+        category: categoryInput.value,
+        note: noteInput.value.trim()
+      };
+
+      if (editingId) {
+        expenses = expenses.map(item =>
+          item.id === editingId
+            ? { ...item, ...data }
+            : item
+        );
+      } else {
+        expenses.push({
+          id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+          createdAt: Date.now(),
+          ...data
+        });
+      }
+
+      saveExpenses();
+      monthFilter.value = data.date.slice(0, 7);
+      resetForm();
+      renderAll();
+    });
+
+    function editExpense(id) {
+      const item = expenses.find(expense => expense.id === id);
+
+      if (!item) {
+        return;
+      }
+
+      editingId = id;
+      dateInput.value = item.date;
+      amountInput.value = new Intl.NumberFormat("vi-VN")
+        .format(item.amount);
+      categoryInput.value = item.category;
+      noteInput.value = item.note || "";
+
+      formTitle.textContent = "Chỉnh sửa khoản chi";
+      saveButton.textContent = "Lưu thay đổi";
+      cancelButton.style.display = "block";
+
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      });
+    }
+
+    function deleteExpense(id) {
+      const item = expenses.find(expense => expense.id === id);
+
+      if (!item) {
+        return;
+      }
+
+      const agreed = confirm(
+        `Bạn có chắc muốn xóa khoản chi ${formatMoney(item.amount)} không?`
+      );
+
+      if (!agreed) {
+        return;
+      }
+
+      expenses = expenses.filter(expense => expense.id !== id);
+      saveExpenses();
+
+      if (editingId === id) {
+        resetForm();
+      }
+
+      renderAll();
+    }
+
+    function resetForm() {
+      editingId = null;
+      dateInput.value = localToday;
+      amountInput.value = "";
+      categoryInput.value = "Ăn uống";
+      noteInput.value = "";
+      formTitle.textContent = "Thêm khoản chi";
+      saveButton.textContent = "+ Lưu khoản chi";
+      cancelButton.style.display = "none";
+    }
+
+    cancelButton.addEventListener("click", resetForm);
+
+    monthFilter.addEventListener("change", renderExpenses);
+
+    amountInput.addEventListener("input", () => {
+      const amount = parseAmount(amountInput.value);
+
+      amountInput.value = amount
+        ? new Intl.NumberFormat("vi-VN").format(amount)
+        : "";
+    });
+
+    exportButton.addEventListener("click", () => {
+      const content = JSON.stringify(expenses, null, 2);
+      const blob = new Blob([content], {
+        type: "application/json"
+      });
+
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+
+      link.href = url;
+      link.download = `so-chi-tieu-${localToday}.json`;
+      link.click();
+
+      URL.revokeObjectURL(url);
+    });
+
+    importButton.addEventListener("click", () => {
+      importFile.click();
+    });
+
+    importFile.addEventListener("change", event => {
+      const file = event.target.files[0];
+
+      if (!file) {
+        return;
+      }
+
+      const reader = new FileReader();
+
+      reader.onload = () => {
+        try {
+          const imported = JSON.parse(reader.result);
+
+          if (!Array.isArray(imported)) {
+            throw new Error("Dữ liệu không hợp lệ");
+          }
+
+          const agreed = confirm(
+            "Khôi phục sẽ thay thế dữ liệu hiện tại. Bạn có muốn tiếp tục không?"
+          );
+
+          if (!agreed) {
+            return;
+          }
+
+          expenses = imported;
+          saveExpenses();
+          resetForm();
+          renderAll();
+
+          alert("Đã khôi phục dữ liệu thành công.");
+        } catch {
+          alert("Không thể đọc bản sao lưu này.");
+        } finally {
+          importFile.value = "";
+        }
+      };
+
+      reader.readAsText(file);
+    });
+
+    renderAll();
+  </script>
+</body>
+</html>
